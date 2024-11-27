@@ -11,8 +11,12 @@ namespace MineModMapSelector
 {
     public sealed partial class ServerPage : Page
     {
-        private string SourcePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Server Mods");
-        private string TargetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Minecraft-Server", "mods");
+        private string SourcePath =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Meine Mods");
+
+        private string TargetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+            "Minecraft-Server", "mods");
+
         private ObservableCollection<string> Versions = new ObservableCollection<string>();
 
         public ServerPage()
@@ -24,20 +28,35 @@ namespace MineModMapSelector
 
         private void UpdatePaths()
         {
-            SourcePathText.Text = SourcePath;
-            TargetPathText.Text = TargetPath;
+            SourcePathTextBox.Text = SourcePath;
+            TargetPathTextBox.Text = TargetPath;
         }
 
         private void LoadVersions()
         {
             if (Directory.Exists(SourcePath))
             {
-                Versions.Clear();
+                VersionFlyout.Items.Clear(); // Vorherige Eintrï¿½ge entfernen
                 foreach (var dir in Directory.GetDirectories(SourcePath))
                 {
-                    Versions.Add(Path.GetFileName(dir));
+                    var version = Path.GetFileName(dir);
+                    var menuItem = new MenuFlyoutItem
+                    {
+                        Text = version
+                    };
+                    menuItem.Click += VersionMenuFlyoutItem_Click; // Ereignis fï¿½r Klick hinzufï¿½gen
+                    VersionFlyout.Items.Add(menuItem); // Menï¿½punkt hinzufï¿½gen
                 }
-                VersionComboBox.ItemsSource = Versions;
+            }
+        }
+
+
+        private void VersionMenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem menuItem)
+            {
+                string selectedVersion = menuItem.Text;
+                SourcePathTextBox.Text = Path.Combine(SourcePath, selectedVersion);
             }
         }
 
@@ -78,35 +97,28 @@ namespace MineModMapSelector
 
         private void ApplyMods(object sender, RoutedEventArgs e)
         {
-            if (VersionComboBox.SelectedItem == null)
+            var selectedVersion = SourcePathTextBox.Text;
+            if (string.IsNullOrEmpty(selectedVersion))
             {
-                ShowMessage("Bitte wähle eine Version aus.");
+                ShowMessage("Bitte wï¿½hle eine Version aus.");
                 return;
             }
 
-            string selectedVersion = VersionComboBox.SelectedItem.ToString();
-            string selectedSourcePath = Path.Combine(SourcePath, selectedVersion);
-
-            if (!Directory.Exists(selectedSourcePath))
+            if (!Directory.Exists(SourcePath) || !Directory.Exists(TargetPath))
             {
-                ShowMessage("Der ausgewählte Ordner existiert nicht.");
-                return;
-            }
-
-            if (!Directory.Exists(TargetPath))
-            {
-                ShowMessage("Der Zielordner existiert nicht.");
+                ShowMessage("Pfad existiert nicht.");
                 return;
             }
 
             try
             {
                 Directory.GetFiles(TargetPath).ToList().ForEach(File.Delete);
-                foreach (var file in Directory.GetFiles(selectedSourcePath))
+                foreach (var file in Directory.GetFiles(selectedVersion))
                 {
                     string destFile = Path.Combine(TargetPath, Path.GetFileName(file));
                     File.Copy(file, destFile);
                 }
+
                 ShowMessage("Mods wurden erfolgreich angewendet.");
             }
             catch (Exception ex)
@@ -125,15 +137,6 @@ namespace MineModMapSelector
                 XamlRoot = this.XamlRoot
             };
             await dialog.ShowAsync();
-        }
-
-        private void VersionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (VersionComboBox.SelectedItem != null)
-            {
-                string selectedVersion = VersionComboBox.SelectedItem.ToString();
-                SourcePathText.Text = Path.Combine(SourcePath, selectedVersion);
-            }
         }
     }
 }

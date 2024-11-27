@@ -5,17 +5,63 @@
     Style="{StaticResource PageBackgroundStyle}">
 
     <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Text="Server-Mods" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
-            <TextBlock Text="Wähle Version:"/>
-            <ComboBox x:Name="VersionComboBox" SelectionChanged="VersionComboBox_SelectionChanged" Width="200" Margin="0,10,0,10"/>
-            <TextBlock Text="Quellpfad:"/>
-            <TextBlock x:Name="SourcePathText" Width="300" Margin="0,10,0,10"/>
-            <Button Content="Quelle ändern" Click="ChangeSourcePath" Width="200" Height="40" Margin="0,10,0,10"/>
-            <TextBlock Text="Zielpfad:"/>
-            <TextBlock x:Name="TargetPathText" Width="300" Margin="0,10,0,10"/>
-            <Button Content="Ziel ändern" Click="ChangeTargetPath" Width="200" Height="40" Margin="0,10,0,10"/>
-            <Button Content="Mods anwenden" Click="ApplyMods" Width="200" Height="40" Background="Green" Foreground="White"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Überschrift -->
+        <TextBlock Text="Server Mods"
+                   FontSize="28"
+                   FontWeight="Bold"
+                   Grid.Row="0"
+                   Margin="0,20,0,20"
+                   HorizontalAlignment="Center" />
+
+        <!-- Dropdown mit Versionen -->
+        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,20">
+            <TextBlock Text="Wähle Version:"
+                       FontSize="18"
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,10"
+                       HorizontalAlignment="Center" />
+
+            <DropDownButton Content="Wähle Version" Width="300" Margin="0,0,0,10">
+                <DropDownButton.Flyout>
+                    <MenuFlyout x:Name="VersionFlyout" />
+                </DropDownButton.Flyout>
+            </DropDownButton>
+
+            <!-- Quellpfad und Zielpfad -->
+            <TextBlock Text="Quellpfad:" Margin="0,10,0,5" />
+            <TextBox x:Name="SourcePathTextBox"
+                     IsReadOnly="True"
+                     Width="400"
+                     Margin="0,0,0,10" />
+            <Button Content="Quelle ändern"
+                    Click="ChangeSourcePath"
+                    Width="300"
+                    Height="50"
+                    Margin="0,10,0,10" />
+
+            <TextBlock Text="Zielpfad:" Margin="0,10,0,5" />
+            <TextBox x:Name="TargetPathTextBox"
+                     IsReadOnly="True"
+                     Width="400"
+                     Margin="0,0,0,10" />
+            <Button Content="Ziel ändern"
+                    Click="ChangeTargetPath"
+                    Width="300"
+                    Height="50"
+                    Margin="0,10,0,10" />
+
+            <Button Content="Mods anwenden"
+                    Click="ApplyMods"
+                    Width="300"
+                    Height="50"
+                    Background="Green"
+                    Foreground="White"
+                    Margin="0,10,0,10" />
         </StackPanel>
     </Grid>
 </Page>
