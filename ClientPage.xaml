@@ -5,18 +5,95 @@
     Style="{StaticResource PageBackgroundStyle}">
 
     <Grid>
-        <!-- Inhalt der Seite -->
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Text="Client-Mods" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
-            <TextBlock Text="Wähle Version:"/>
-            <ComboBox x:Name="VersionComboBox" SelectionChanged="VersionComboBox_SelectionChanged" Width="200" Margin="0,10,0,10"/>
-            <TextBlock Text="Quellpfad:"/>
-            <TextBlock x:Name="SourcePathText" Width="300" Margin="0,10,0,10"/>
-            <Button Content="Quelle ändern" Click="ChangeSourcePath" Width="200" Height="40" Margin="0,10,0,10"/>
-            <TextBlock Text="Zielpfad:"/>
-            <TextBlock x:Name="TargetPathText" Width="300" Margin="0,10,0,10"/>
-            <Button Content="Ziel ändern" Click="ChangeTargetPath" Width="200" Height="40" Margin="0,10,0,10"/>
-            <Button Content="Mods anwenden" Click="ApplyMods" Width="200" Height="40" Background="Green" Foreground="White"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <!-- Mods Loading Box -->
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Überschrift -->
+        <TextBlock Text="Client Mods"
+                   FontSize="28"
+                   FontWeight="Bold"
+                   Grid.Row="0"
+                   Margin="0,20,0,20"
+                   HorizontalAlignment="Center" />
+
+        <!-- Dropdown mit Versionen -->
+        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,20">
+            <TextBlock Text="Wähle die Passende Version mit deinen Mods aus:"
+                       Style="{StaticResource TitleLargeTextBlockStyle}"
+                       FontSize="18"
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,10"
+                       HorizontalAlignment="Center" />
+
+
+            <DropDownButton Content="Wähle Version" Width="400" Margin="0,0,0,10" HorizontalAlignment="Center">
+                <DropDownButton.Flyout>
+                    <MenuFlyout x:Name="VersionFlyout" Placement="Bottom">
+                        <MenuFlyout.MenuFlyoutPresenterStyle>
+                            <Style TargetType="MenuFlyoutPresenter">
+                                <Setter Property="MinWidth" Value="400" />
+                            </Style>
+                        </MenuFlyout.MenuFlyoutPresenterStyle>
+                    </MenuFlyout>
+                </DropDownButton.Flyout>
+
+            </DropDownButton>
+
+            <!-- Quellpfad und Zielpfad -->
+            <TextBlock Text="Quellpfad:" Margin="0,10,0,5" HorizontalAlignment="Center" />
+            <TextBox x:Name="SourcePathTextBox"
+                     IsReadOnly="True"
+                     Width="400"
+                     Margin="0,0,0,10"
+                     HorizontalAlignment="Center" />
+            <Button Content="Quelle ändern"
+                    Click="ChangeSourcePath"
+                    Width="400"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Height="50"
+                    Margin="0,10,0,10"
+                    HorizontalAlignment="Center" />
+
+            <TextBlock Text="Zielpfad:" Margin="0,10,0,5" HorizontalAlignment="Center" />
+            <TextBox x:Name="TargetPathTextBox"
+                     IsReadOnly="True"
+                     Width="400"
+                     Margin="0,0,0,10" />
+            <Button Content="Ziel ändern"
+                    Click="ChangeTargetPath"
+                    Width="400"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Height="50"
+                    Margin="0,10,0,10" />
+
+            <Button Content="Mods anwenden"
+                    Click="ApplyMods"
+                    Width="400"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Height="50"
+                    Background="Green"
+                    Foreground="White"
+                    Margin="0,10,0,10" />
         </StackPanel>
+
+        <!-- Server-Log -->
+        <ScrollViewer Grid.Row="3" HorizontalAlignment="Center" Margin="0,20,0,0" Width="1000" MinHeight="250"
+                      MaxHeight="400">
+            <TextBox x:Name="ServerOutputTextBox"
+                     FontFamily="Arial"
+                     FontStyle="Italic"
+                     CharacterSpacing="200"
+                     IsReadOnly="True"
+                     TextWrapping="Wrap"
+                     AcceptsReturn="True"
+                     Background="Black"
+                     Foreground="White"
+                     FontSize="14"
+                     Padding="10" />
+        </ScrollViewer>
     </Grid>
 </Page>
