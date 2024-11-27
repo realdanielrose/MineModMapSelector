@@ -1,8 +1,8 @@
-<Page
-    x:Class="MineModMapSelector.MapsPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Style="{StaticResource PageBackgroundStyle}">
+<Page x:Class="MineModMapSelector.MapsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:MineModMapSelector"
+      Style="{StaticResource PageBackgroundStyle}">
 
     <Grid>
         <!-- Zeilenaufteilung -->
@@ -12,9 +12,9 @@
             <!-- Map-Auswahl -->
             <RowDefinition Height="Auto" />
             <!-- Serverpfad und Buttons -->
-            <RowDefinition Height="*" />
-            <!-- Server-Log -->
             <RowDefinition Height="Auto" />
+            <!-- Server-Log -->
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- Überschrift -->
@@ -69,17 +69,23 @@
         </StackPanel>
 
         <!-- Server-Log -->
-        <ScrollViewer Grid.Row="3" HorizontalAlignment="Center" Margin="0,20,0,0" Width="1000" MinHeight="250" MaxHeight="400" >
+        <ScrollViewer x:Name="ServerOutputScrollViewer" 
+                      Grid.Row="3" 
+                      HorizontalAlignment="Center" 
+                      Margin="0,20,0,0" 
+                      Width="1400" 
+                      MinHeight="250" 
+                      MaxHeight="600" 
+                      VerticalScrollBarVisibility="Visible">
             <TextBox x:Name="ServerOutputTextBox"
-                     FontFamily="Arial"
-                     FontStyle="Italic"
+                     FontFamily="Ubuntu Mono"
                      CharacterSpacing="200" 
-                     IsReadOnly="True" 
+                     IsReadOnly="False"  
                      TextWrapping="Wrap" 
                      AcceptsReturn="True" 
                      Background="Black" 
-                     Foreground="White" 
-                     FontSize="14" 
+                     Foreground="DarkGray" 
+                     FontSize="12" 
                      Padding="10" />
         </ScrollViewer>
     </Grid>
