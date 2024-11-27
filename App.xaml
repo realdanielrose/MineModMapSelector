@@ -9,10 +9,10 @@
             <ResourceDictionary.MergedDictionaries>
                 <!-- WinUI-Stilressourcen -->
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                
+
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Stil für Hintergrund -->
+            <!-- Stil fï¿½r Hintergrund -->
             <Style x:Key="PageBackgroundStyle" TargetType="Page">
                 <Setter Property="Background">
                     <Setter.Value>
@@ -21,7 +21,7 @@
                 </Setter>
             </Style>
 
-            <!-- Stil für Buttons -->
+            <!-- Stil fï¿½r Buttons -->
             <Style x:Key="PrimaryButtonStyle" TargetType="Button">
                 <Setter Property="Background" Value="#4CAF50" />
                 <Setter Property="Foreground" Value="White" />
