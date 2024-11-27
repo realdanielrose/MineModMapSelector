@@ -9,11 +9,12 @@ namespace MineModMapSelector
         {
             this.InitializeComponent();
 
-            // Standardmäßig "ClientPage" laden
+            // Standardmï¿½ï¿½ig "ClientPage" laden
             ContentFrame.Navigate(typeof(ClientPage));
         }
 
-        private void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+        private void NavigationView_SelectionChanged(NavigationView sender,
+            NavigationViewSelectionChangedEventArgs args)
         {
             if (args.SelectedItemContainer != null)
             {

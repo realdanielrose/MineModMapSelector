@@ -11,9 +11,9 @@
                     SelectionChanged="NavigationView_SelectionChanged">
         <!-- Navigationsmenü -->
         <NavigationView.MenuItems>
-            <NavigationViewItem Content="Client-Mods" Icon="Document" Tag="Client"/>
-            <NavigationViewItem Content="Server-Mods" Icon="World" Tag="Server"/>
-            <NavigationViewItem Content="Maps" Icon="Map" Tag="Maps"/>
+            <NavigationViewItem Content="Client-Mods" Icon="Document" Tag="Client" />
+            <NavigationViewItem Content="Server-Mods" Icon="World" Tag="Server" />
+            <NavigationViewItem Content="Maps" Icon="Map" Tag="Maps" />
         </NavigationView.MenuItems>
 
         <!-- Bereich für den Seiteninhalt -->
