@@ -257,25 +257,67 @@ namespace MineModMapSelector
                     }
                     catch (Exception ex)
                     {
-                        ShowMessage($"Fehler beim Starten des Servers: {ex.Message}");
+                        await ShowMessage($"Fehler beim Starten des Servers: {ex.Message}");
                     }
                 }
                 else
                 {
-                    ShowMessage("Die Datei run.bat wurde nicht gefunden.");
+                    await ShowMessage("Die Datei run.bat wurde nicht gefunden.");
                 }
             }
             else
             {
-                if (ServerProcess == null || ServerProcess.HasExited)
+                if (Process.GetProcesses().Any(p => p.Id == ServerProcess.Id && !p.HasExited))
                 {
-                    ShowMessage("Der Server läuft bereits.");
+                    await ShowMessage("Der Server läuft bereits.");
                 }
                 else
                 {
                     ServerProcess = null;
                     StartServer(sender, e); // Erneut versuchen, den Server zu starten
                 }
+            }
+        }
+
+        private async void StopServer_Click(object sender, RoutedEventArgs e)
+        {
+            if (IsServerProcessRunning())
+            {
+                try
+                {
+                    Debug.WriteLine("Versuche den Serverprozess zu stoppen...");
+                    ServerProcess.CloseMainWindow();
+
+                    // Gebe dem Prozess etwas Zeit, um das Fenster zu schließen
+                    await Task.Delay(2000);
+
+                    if (!ServerProcess.HasExited)
+                    {
+                        ServerProcess.Kill();
+
+                        await Task.Run(() =>
+                        {
+                            ServerProcess.WaitForExit(); // Warte auf die Beendigung
+                        });
+                    }
+
+                    Debug.WriteLine("Serverprozess wurde erfolgreich gestoppt.");
+                    await ShowMessage("Serverprozess wurde gestoppt.");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Fehler beim Stoppen des Servers: {ex.Message}");
+                    await ShowMessage($"Fehler beim Stoppen des Servers: {ex.Message}");
+                }
+                finally
+                {
+                    ServerProcess = null;
+                }
+            }
+            else
+            {
+                Debug.WriteLine("Der Server läuft nicht.");
+                await ShowMessage("Der Server läuft nicht.");
             }
         }
 
@@ -286,8 +328,25 @@ namespace MineModMapSelector
                 outputQueue.Enqueue(text);
             }
         }
+        
+        private bool IsServerProcessRunning()
+        {
+            if (ServerProcess == null)
+                return false;
 
-        private async void ShowMessage(string message)
+            try
+            {
+                ServerProcess.Refresh(); // Aktualisiert die Prozessdaten
+                return !ServerProcess.HasExited;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+
+        private async Task ShowMessage(string message)
         {
             var dialog = new ContentDialog
             {
