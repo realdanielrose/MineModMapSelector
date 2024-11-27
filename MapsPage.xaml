@@ -7,14 +7,14 @@
     <Grid>
         <!-- Zeilenaufteilung -->
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <!-- Überschrift -->
             <RowDefinition Height="Auto" />
             <!-- Map-Auswahl -->
-            <RowDefinition Height="*" />
-            <!-- Serverpfad und Buttons -->
             <RowDefinition Height="Auto" />
+            <!-- Serverpfad und Buttons -->
+            <RowDefinition Height="*" />
             <!-- Server-Log -->
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- Überschrift -->
@@ -36,14 +36,20 @@
                             Margin="0,0,0,10"
                             Style="{StaticResource PrimaryButtonStyle}">
                 <DropDownButton.Flyout>
-                    <MenuFlyout x:Name="MapMenuFlyout" Placement="Bottom" />
+                    <MenuFlyout x:Name="MapMenuFlyout" Placement="Bottom">
+                        <MenuFlyout.MenuFlyoutPresenterStyle>
+                            <Style TargetType="MenuFlyoutPresenter">
+                                <Setter Property="MinWidth" Value="400" />
+                            </Style>
+                        </MenuFlyout.MenuFlyoutPresenterStyle>
+                    </MenuFlyout>
                 </DropDownButton.Flyout>
             </DropDownButton>
         </StackPanel>
 
         <!-- Serverpfad und Buttons -->
         <StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,20">
-            <TextBlock Text="Serverpfad:" FontSize="18" FontWeight="SemiBold" Margin="0,10,0,10" HorizontalAlignment="Center" />
+            <TextBlock Text="Serverpfad:" FontSize="18" FontWeight="SemiBold" Margin="0,10,0,10" HorizontalAlignment="Center" Style="{StaticResource DisplayTextBlockStyle}" />
             <TextBox x:Name="ServerPathTextBox" IsReadOnly="True" Width="400" Margin="0,0,0,20" Padding="5" />
 
             <Button Content="Server-Ordner ändern" 

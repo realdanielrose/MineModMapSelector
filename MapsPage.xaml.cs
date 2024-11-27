@@ -78,6 +78,7 @@ namespace MineModMapSelector
                             lines[i] = $"level-name={selectedMap}";
                         }
                     }
+
                     File.WriteAllLines(serverPropertiesPath, lines);
                 }
                 else
