@@ -5,28 +5,76 @@
     Style="{StaticResource PageBackgroundStyle}">
 
     <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20">
-            <TextBlock Text="Maps" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+        <!-- Zeilenaufteilung -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <!-- Überschrift -->
+            <RowDefinition Height="Auto" />
+            <!-- Map-Auswahl -->
+            <RowDefinition Height="*" />
+            <!-- Serverpfad und Buttons -->
+            <RowDefinition Height="Auto" />
+            <!-- Server-Log -->
+        </Grid.RowDefinitions>
 
-            <TextBlock Text="Wähle Map:" Margin="0,10,0,5"/>
-            <ComboBox x:Name="MapComboBox" SelectionChanged="MapComboBox_SelectionChanged" Width="300" Margin="0,0,0,10"/>
+        <!-- Überschrift -->
+        <TextBlock 
+            Text="Maps" 
+            FontSize="28" 
+            FontWeight="Bold" 
+            Grid.Row="0" 
+            Margin="0,20,0,20" 
+            HorizontalAlignment="Center" />
 
-            <TextBlock Text="Serverpfad:" Margin="0,10,0,5"/>
-            <TextBox x:Name="ServerPathTextBox" IsReadOnly="True" Width="400" Margin="0,0,0,10"/>
-
-            <Button Content="Server-Ordner ändern" Click="ChangeServerPath" Width="300" Height="40" Margin="0,10,0,10"/>
-            <Button Content="Map anwenden" Click="ApplyMap" Width="300" Height="40" Background="Green" Foreground="White" Margin="0,10,0,10"/>
-            <Button Content="Server starten" Click="StartServer" Width="300" Height="40" Background="Green" Foreground="White" Margin="0,10,0,10"/>
-
-            <!-- Server Output Section -->
-            <ScrollViewer Width="600" Height="300" Margin="0,10,0,0">
-                <TextBox x:Name="ServerOutputTextBox" 
-                         IsReadOnly="True" 
-                         TextWrapping="Wrap" 
-                         AcceptsReturn="True" 
-                         Background="Black" 
-                         Foreground="White"/>
-            </ScrollViewer>
+        <!-- Map-Auswahl -->
+        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,20">
+            <TextBlock Text="Hier kannst du die Map auswählen:" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+            <DropDownButton x:Name="MapFlyoutButton"
+                            Content="Wähle Map"
+                            Width="400"
+                            Height="40"
+                            Margin="0,0,0,10"
+                            Style="{StaticResource PrimaryButtonStyle}">
+                <DropDownButton.Flyout>
+                    <MenuFlyout x:Name="MapMenuFlyout" Placement="Bottom" />
+                </DropDownButton.Flyout>
+            </DropDownButton>
         </StackPanel>
+
+        <!-- Serverpfad und Buttons -->
+        <StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,20">
+            <TextBlock Text="Serverpfad:" FontSize="18" FontWeight="SemiBold" Margin="0,10,0,10" HorizontalAlignment="Center" />
+            <TextBox x:Name="ServerPathTextBox" IsReadOnly="True" Width="400" Margin="0,0,0,20" Padding="5" />
+
+            <Button Content="Server-Ordner ändern" 
+                    Click="ChangeServerPath"
+                    Width="400"
+                    Style="{StaticResource PrimaryButtonStyle}" />
+
+            <Button Content="Map anwenden" 
+                    Click="ApplyMap"
+                    Width="400"
+                    Style="{StaticResource PrimaryButtonStyle}" />
+
+            <Button Content="Server starten" 
+                    Click="StartServer" 
+                    Width="400"
+                    Style="{StaticResource PrimaryButtonStyle}" />
+        </StackPanel>
+
+        <!-- Server-Log -->
+        <ScrollViewer Grid.Row="3" HorizontalAlignment="Center" Margin="0,20,0,0" Width="1000" MinHeight="250" MaxHeight="400" >
+            <TextBox x:Name="ServerOutputTextBox"
+                     FontFamily="Arial"
+                     FontStyle="Italic"
+                     CharacterSpacing="200" 
+                     IsReadOnly="True" 
+                     TextWrapping="Wrap" 
+                     AcceptsReturn="True" 
+                     Background="Black" 
+                     Foreground="White" 
+                     FontSize="14" 
+                     Padding="10" />
+        </ScrollViewer>
     </Grid>
 </Page>

@@ -1,13 +1,11 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Windows.Storage.Pickers;
-using Windows.Storage;
 using WinRT.Interop;
-using System.Diagnostics;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
-using Microsoft.UI.Xaml.Media;
 
 namespace MineModMapSelector
 {
@@ -17,27 +15,75 @@ namespace MineModMapSelector
         private ObservableCollection<string> Maps = new ObservableCollection<string>();
         private Process ServerProcess;
 
-        // Variable zum Speichern des Logs
-        private static string ServerLog = "";
-
         public MapsPage()
         {
             this.InitializeComponent();
             ServerPathTextBox.Text = ServerPath;
-            ServerOutputTextBox.Text = ServerLog; // Bestehendes Log beim Initialisieren setzen
             LoadMaps();
         }
 
         private void LoadMaps()
         {
             Maps.Clear();
+            MapMenuFlyout.Items.Clear(); // Entferne alte Eintrï¿½ge
+
             if (Directory.Exists(ServerPath))
             {
                 foreach (var directory in Directory.GetDirectories(ServerPath))
                 {
-                    Maps.Add(Path.GetFileName(directory));
+                    var requiredFolders = new[] { "region", "playerdata", "advancements", "data" };
+                    int matchCount = 0;
+
+                    foreach (var folder in requiredFolders)
+                    {
+                        string folderPath = Path.Combine(directory, folder);
+                        if (Directory.Exists(folderPath))
+                        {
+                            matchCount++;
+                        }
+                    }
+
+                    if (matchCount >= 4)
+                    {
+                        string mapName = Path.GetFileName(directory);
+                        Maps.Add(mapName);
+
+                        // Fï¿½ge die Map als Menï¿½punkt hinzu
+                        var menuItem = new MenuFlyoutItem
+                        {
+                            Text = mapName
+                        };
+                        menuItem.Click += MapFlyoutItem_Click;
+                        MapMenuFlyout.Items.Add(menuItem);
+                    }
                 }
-                MapComboBox.ItemsSource = Maps;
+            }
+        }
+
+        private void MapFlyoutItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem menuItem)
+            {
+                string selectedMap = menuItem.Text;
+
+                // Setze die Map als aktiv
+                var serverPropertiesPath = Path.Combine(ServerPath, "server.properties");
+                if (File.Exists(serverPropertiesPath))
+                {
+                    var lines = File.ReadAllLines(serverPropertiesPath);
+                    for (int i = 0; i < lines.Length; i++)
+                    {
+                        if (lines[i].StartsWith("level-name="))
+                        {
+                            lines[i] = $"level-name={selectedMap}";
+                        }
+                    }
+                    File.WriteAllLines(serverPropertiesPath, lines);
+                }
+                else
+                {
+                    ShowMessage("server.properties wurde nicht gefunden!");
+                }
             }
         }
 
@@ -60,42 +106,9 @@ namespace MineModMapSelector
             }
         }
 
-        private void MapComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (MapComboBox.SelectedItem != null)
-            {
-                var selectedMap = MapComboBox.SelectedItem.ToString();
-                var serverPropertiesPath = Path.Combine(ServerPath, "server.properties");
-
-                if (File.Exists(serverPropertiesPath))
-                {
-                    var lines = File.ReadAllLines(serverPropertiesPath);
-                    for (int i = 0; i < lines.Length; i++)
-                    {
-                        if (lines[i].StartsWith("level-name="))
-                        {
-                            lines[i] = $"level-name={selectedMap}";
-                        }
-                    }
-                    File.WriteAllLines(serverPropertiesPath, lines);
-                }
-                else
-                {
-                    ShowMessage("server.properties wurde nicht gefunden!");
-                }
-            }
-        }
-
         private void ApplyMap(object sender, RoutedEventArgs e)
         {
-            if (MapComboBox.SelectedItem != null)
-            {
-                ShowMessage($"Map {MapComboBox.SelectedItem} wurde angewendet!");
-            }
-            else
-            {
-                ShowMessage("Bitte wähle eine Map aus.");
-            }
+            ShowMessage("Die Map wurde angewendet.");
         }
 
         private async void StartServer(object sender, RoutedEventArgs e)
@@ -118,14 +131,12 @@ namespace MineModMapSelector
                         }
                     };
 
-                    ServerProcess.OutputDataReceived += (s, args) => LogServerOutput(args.Data);
-                    ServerProcess.ErrorDataReceived += (s, args) => LogServerOutput(args.Data);
+                    ServerProcess.OutputDataReceived += (s, args) => Debug.WriteLine(args.Data);
+                    ServerProcess.ErrorDataReceived += (s, args) => Debug.WriteLine(args.Data);
 
                     ServerProcess.Start();
                     ServerProcess.BeginOutputReadLine();
                     ServerProcess.BeginErrorReadLine();
-
-                    LogServerOutput("Server gestartet...");
                 }
                 else
                 {
@@ -134,27 +145,8 @@ namespace MineModMapSelector
             }
             else
             {
-                ShowMessage("Der Server läuft bereits.");
+                ShowMessage("Der Server lï¿½uft bereits.");
             }
-        }
-
-        private void LogServerOutput(string message)
-        {
-            DispatcherQueue.TryEnqueue(() =>
-            {
-                if (!string.IsNullOrWhiteSpace(message))
-                {
-                    ServerLog += message + Environment.NewLine; // Log in der statischen Variable speichern
-                    ServerOutputTextBox.Text = ServerLog;
-
-                    // Simuliere das Scrollen zum Ende
-                    var scrollViewer = ServerOutputTextBox.FindDescendant<ScrollViewer>();
-                    if (scrollViewer != null)
-                    {
-                        scrollViewer.ChangeView(null, scrollViewer.ScrollableHeight, null);
-                    }
-                }
-            });
         }
 
         private async void ShowMessage(string message)
@@ -168,31 +160,6 @@ namespace MineModMapSelector
             };
 
             await dialog.ShowAsync();
-        }
-    }
-
-    public static class UIHelper
-    {
-        public static T FindDescendant<T>(this DependencyObject d) where T : DependencyObject
-        {
-            if (d == null) return null;
-
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(d); i++)
-            {
-                var child = VisualTreeHelper.GetChild(d, i);
-                if (child is T result)
-                {
-                    return result;
-                }
-
-                var descendant = FindDescendant<T>(child);
-                if (descendant != null)
-                {
-                    return descendant;
-                }
-            }
-
-            return null;
         }
     }
 }
