@@ -1,0 +1,22 @@
+<Window
+    x:Class="MineModMapSelector.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Minecraft Mod Map Manager">
+
+    <NavigationView PaneTitle="Minecraft Manager"
+                    SelectionChanged="NavigationView_SelectionChanged">
+        <!-- Navigationsmenü -->
+        <NavigationView.MenuItems>
+            <NavigationViewItem Content="Client-Mods" Icon="Document" Tag="Client"/>
+            <NavigationViewItem Content="Server-Mods" Icon="World" Tag="Server"/>
+            <NavigationViewItem Content="Maps" Icon="Map" Tag="Maps"/>
+        </NavigationView.MenuItems>
+
+        <!-- Bereich für den Seiteninhalt -->
+        <Frame x:Name="ContentFrame" />
+    </NavigationView>
+</Window>

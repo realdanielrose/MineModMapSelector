@@ -1,0 +1,26 @@
+<Application
+    x:Class="MineModMapSelector.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MineModMapSelector">
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Microsoft UI Controls Ressourcen -->
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Stil für den Seitenhintergrund -->
+            <Style x:Key="PageBackgroundStyle" TargetType="Page">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <!-- Hintergrundbild mit Opacity -->
+                        <ImageBrush ImageSource="Assets/MinecraftBackground.png" Stretch="UniformToFill" Opacity="0.5" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+
+</Application>

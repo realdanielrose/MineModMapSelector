@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MineModMapSelector (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "MineModMapSelector (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
