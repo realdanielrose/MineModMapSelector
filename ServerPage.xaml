@@ -84,17 +84,13 @@
         <!-- Server-Log -->
         <ScrollViewer Grid.Row="3" HorizontalAlignment="Center" Margin="0,20,0,0" Width="1000" MinHeight="250"
                       MaxHeight="400">
-            <TextBox x:Name="ServerOutputTextBox"
-                     FontFamily="Arial"
-                     FontStyle="Italic"
-                     CharacterSpacing="200"
-                     IsReadOnly="True"
-                     TextWrapping="Wrap"
-                     AcceptsReturn="True"
-                     Background="Black"
-                     Foreground="White"
-                     FontSize="14"
-                     Padding="10" />
+            <RichTextBlock x:Name="ServerOutputRichTextBlock"
+                           FontFamily="Consolas"
+                           FontSize="16"
+                           Padding="10"
+                           TextWrapping="Wrap"
+                           VerticalAlignment="Top"
+                           ScrollViewer.VerticalScrollBarVisibility="Auto" />
         </ScrollViewer>
     </Grid>
 </Page>

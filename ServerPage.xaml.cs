@@ -7,6 +7,8 @@ using WinRT.Interop;
 using System.Linq;
 using System;
 using Windows.Storage;
+using Microsoft.UI.Xaml.Documents;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.WindowsAPICodePack.Dialogs;
 
 
@@ -47,31 +49,92 @@ namespace MineModMapSelector
             if (Directory.Exists(SourcePath))
             {
                 var jarFiles = Directory.GetFiles(SourcePath, "*.jar")
-                    .OrderBy(file => file, StringComparer.OrdinalIgnoreCase) // Alphabetisch sortieren
-                    .ThenBy(file => Path.GetFileNameWithoutExtension(file).Length) // Numerisch sortieren
+                    .OrderBy(file => file, StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(file => Path.GetFileNameWithoutExtension(file).Length)
                     .Select(Path.GetFileName)
                     .ToList();
 
+                ServerOutputRichTextBlock.Blocks.Clear(); // Inhalt des RichTextBlock löschen
+
                 if (jarFiles.Any())
                 {
-                    // Gesamtanzahl oben hinzufügen
-                    string fileCountMessage = $"Gefundene Dateien: {jarFiles.Count}";
-                    // Nummerierte Liste erstellen
-                    var numberedFiles = jarFiles.Select((file, index) => $"{index + 1}. {file}");
-                    // Dateiübersicht erstellen
-                    ServerOutputTextBox.Text = $"{fileCountMessage}\n\n{string.Join(Environment.NewLine, numberedFiles)}";
+                    // Überschrift hinzufügen
+                    var header = new Paragraph();
+                    header.Inlines.Add(new Run
+                    {
+                        Text = $"Gefundene Dateien: {jarFiles.Count}\n\n",
+                        Foreground = new SolidColorBrush(Microsoft.UI.Colors.LimeGreen)
+                    });
+                    ServerOutputRichTextBlock.Blocks.Add(header);
+
+                    // Dateien hinzufügen
+                    foreach (var file in jarFiles.Select((name, index) => new { Name = name, Index = index + 1 }))
+                    {
+                        var paragraph = new Paragraph();
+
+                        // Nummer
+                        paragraph.Inlines.Add(new Run
+                        {
+                            Text = $"{file.Index}. ",
+                            Foreground = new SolidColorBrush(Microsoft.UI.Colors.White)
+                        });
+
+                        // Dateiname bis zur Version
+                        var namePart = file.Name.Split(new[] { '-', '_' }, 2)[0];
+                        paragraph.Inlines.Add(new Run
+                        {
+                            Text = namePart,
+                            Foreground = new SolidColorBrush(Microsoft.UI.Colors.DeepSkyBlue)
+                        });
+
+                        // Versionsnummer
+                        var versionStart = file.Name.IndexOfAny(new[] { '-', '_' });
+                        if (versionStart != -1)
+                        {
+                            var versionPart =
+                                file.Name.Substring(versionStart + 1, file.Name.Length - versionStart - 5);
+                            paragraph.Inlines.Add(new Run
+                            {
+                                Text = $" - {versionPart}",
+                                Foreground = new SolidColorBrush(Microsoft.UI.Colors.LimeGreen)
+                            });
+                        }
+
+                        // `.jar`
+                        paragraph.Inlines.Add(new Run
+                        {
+                            Text = ".jar",
+                            Foreground = new SolidColorBrush(Microsoft.UI.Colors.Yellow)
+                        });
+
+                        ServerOutputRichTextBlock.Blocks.Add(paragraph);
+                    }
                 }
                 else
                 {
-                    ServerOutputTextBox.Text = "Keine JAR-Dateien im Quellordner gefunden.";
+                    // Keine Dateien gefunden
+                    var noFilesParagraph = new Paragraph();
+                    noFilesParagraph.Inlines.Add(new Run
+                    {
+                        Text = "Keine JAR-Dateien im Quellpfad gefunden.",
+                        Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red)
+                    });
+                    ServerOutputRichTextBlock.Blocks.Add(noFilesParagraph);
                 }
             }
             else
             {
-                ServerOutputTextBox.Text = "Der Quellpfad ist ungültig oder existiert nicht.";
+                // Ungültiger Pfad
+                var invalidPathParagraph = new Paragraph();
+                invalidPathParagraph.Inlines.Add(new Run
+                {
+                    Text = "Der Quellpfad ist ungültig oder existiert nicht.",
+                    Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red)
+                });
+                ServerOutputRichTextBlock.Blocks.Add(invalidPathParagraph);
             }
         }
-        
+
         private void UpdateTargetJarList()
         {
             if (Directory.Exists(TargetPath))
@@ -82,26 +145,89 @@ namespace MineModMapSelector
                     .Select(Path.GetFileName)
                     .ToList();
 
+                // RichTextBlock-Inhalt leeren
+                ServerOutputRichTextBlock.Blocks.Clear();
+
                 if (jarFiles.Any())
                 {
                     // Gesamtanzahl oben hinzufügen
-                    string fileCountMessage = $"Gefundene Dateien im Zielpfad: {jarFiles.Count}";
-                    // Nummerierte Liste erstellen
-                    var numberedFiles = jarFiles.Select((file, index) => $"{index + 1}. {file}");
-                    // TextBox aktualisieren
-                    ServerOutputTextBox.Text = $"{fileCountMessage}\n\n{string.Join(Environment.NewLine, numberedFiles)}";
+                    var header = new Paragraph();
+                    header.Inlines.Add(new Run
+                    {
+                        Text = $"Gefundene Dateien im Zielpfad: {jarFiles.Count}\n\n",
+                        Foreground = new SolidColorBrush(Microsoft.UI.Colors.LimeGreen) // Grün für Überschrift
+                    });
+                    ServerOutputRichTextBlock.Blocks.Add(header);
+
+                    // Dateien mit Formatierung auflisten
+                    foreach (var file in jarFiles.Select((name, index) => new { Name = name, Index = index + 1 }))
+                    {
+                        var paragraph = new Paragraph();
+
+                        // Nummer
+                        paragraph.Inlines.Add(new Run
+                        {
+                            Text = $"{file.Index}. ",
+                            Foreground = new SolidColorBrush(Microsoft.UI.Colors.White) // Nummer in Weiß
+                        });
+
+                        // Dateiname bis zur Version
+                        var namePart = file.Name.Split(new[] { '-', '_' }, 2)[0];
+                        paragraph.Inlines.Add(new Run
+                        {
+                            Text = namePart,
+                            Foreground = new SolidColorBrush(Microsoft.UI.Colors.DeepSkyBlue) // Blau
+                        });
+
+                        // Versionsnummer
+                        var versionStart = file.Name.IndexOfAny(new[] { '-', '_' });
+                        if (versionStart != -1)
+                        {
+                            var versionPart =
+                                file.Name.Substring(versionStart + 1, file.Name.Length - versionStart - 5);
+                            paragraph.Inlines.Add(new Run
+                            {
+                                Text = $" - {versionPart}",
+                                Foreground = new SolidColorBrush(Microsoft.UI.Colors.LimeGreen) // Grün
+                            });
+                        }
+
+                        // `.jar`
+                        paragraph.Inlines.Add(new Run
+                        {
+                            Text = ".jar",
+                            Foreground = new SolidColorBrush(Microsoft.UI.Colors.Yellow) // Gelb
+                        });
+
+                        // Paragraph hinzufügen
+                        ServerOutputRichTextBlock.Blocks.Add(paragraph);
+                    }
                 }
                 else
                 {
-                    ServerOutputTextBox.Text = "Keine JAR-Dateien im Zielpfad gefunden.";
+                    // Keine Dateien gefunden
+                    var noFilesParagraph = new Paragraph();
+                    noFilesParagraph.Inlines.Add(new Run
+                    {
+                        Text = "Keine JAR-Dateien im Zielpfad gefunden.",
+                        Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red) // Rot für Fehler
+                    });
+                    ServerOutputRichTextBlock.Blocks.Add(noFilesParagraph);
                 }
             }
             else
             {
-                ServerOutputTextBox.Text = "Der Zielpfad ist ungültig oder existiert nicht.";
+                // Ungültiger Zielpfad
+                var invalidPathParagraph = new Paragraph();
+                invalidPathParagraph.Inlines.Add(new Run
+                {
+                    Text = "Der Zielpfad ist ungültig oder existiert nicht.",
+                    Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red) // Rot für Fehler
+                });
+                ServerOutputRichTextBlock.Blocks.Add(invalidPathParagraph);
             }
         }
-        
+
 
         private void LoadVersions()
         {
@@ -143,8 +269,6 @@ namespace MineModMapSelector
                 }
             }
         }
-
-
 
 
         private void ChangeSourcePath(object sender, RoutedEventArgs e)
