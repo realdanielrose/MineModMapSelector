@@ -6,6 +6,9 @@ using System.IO;
 using WinRT.Interop;
 using System.Linq;
 using System;
+using Windows.Storage;
+using Microsoft.WindowsAPICodePack.Dialogs;
+
 
 namespace MineModMapSelector
 {
@@ -22,15 +25,83 @@ namespace MineModMapSelector
         public ServerPage()
         {
             this.InitializeComponent();
+
+            // Quell- und Zielpfade initialisieren
             UpdatePaths();
+
+            // Zielpfad zuerst anzeigen
+            UpdateTargetJarList();
+            // Versionen laden
             LoadVersions();
         }
+
 
         private void UpdatePaths()
         {
             SourcePathTextBox.Text = SourcePath;
             TargetPathTextBox.Text = TargetPath;
         }
+
+        private void UpdateJarList()
+        {
+            if (Directory.Exists(SourcePath))
+            {
+                var jarFiles = Directory.GetFiles(SourcePath, "*.jar")
+                    .OrderBy(file => file, StringComparer.OrdinalIgnoreCase) // Alphabetisch sortieren
+                    .ThenBy(file => Path.GetFileNameWithoutExtension(file).Length) // Numerisch sortieren
+                    .Select(Path.GetFileName)
+                    .ToList();
+
+                if (jarFiles.Any())
+                {
+                    // Gesamtanzahl oben hinzufügen
+                    string fileCountMessage = $"Gefundene Dateien: {jarFiles.Count}";
+                    // Nummerierte Liste erstellen
+                    var numberedFiles = jarFiles.Select((file, index) => $"{index + 1}. {file}");
+                    // Dateiübersicht erstellen
+                    ServerOutputTextBox.Text = $"{fileCountMessage}\n\n{string.Join(Environment.NewLine, numberedFiles)}";
+                }
+                else
+                {
+                    ServerOutputTextBox.Text = "Keine JAR-Dateien im Quellordner gefunden.";
+                }
+            }
+            else
+            {
+                ServerOutputTextBox.Text = "Der Quellpfad ist ungültig oder existiert nicht.";
+            }
+        }
+        
+        private void UpdateTargetJarList()
+        {
+            if (Directory.Exists(TargetPath))
+            {
+                var jarFiles = Directory.GetFiles(TargetPath, "*.jar")
+                    .OrderBy(file => file, StringComparer.OrdinalIgnoreCase) // Alphabetisch sortieren
+                    .ThenBy(file => Path.GetFileNameWithoutExtension(file).Length) // Numerisch sortieren
+                    .Select(Path.GetFileName)
+                    .ToList();
+
+                if (jarFiles.Any())
+                {
+                    // Gesamtanzahl oben hinzufügen
+                    string fileCountMessage = $"Gefundene Dateien im Zielpfad: {jarFiles.Count}";
+                    // Nummerierte Liste erstellen
+                    var numberedFiles = jarFiles.Select((file, index) => $"{index + 1}. {file}");
+                    // TextBox aktualisieren
+                    ServerOutputTextBox.Text = $"{fileCountMessage}\n\n{string.Join(Environment.NewLine, numberedFiles)}";
+                }
+                else
+                {
+                    ServerOutputTextBox.Text = "Keine JAR-Dateien im Zielpfad gefunden.";
+                }
+            }
+            else
+            {
+                ServerOutputTextBox.Text = "Der Zielpfad ist ungültig oder existiert nicht.";
+            }
+        }
+        
 
         private void LoadVersions()
         {
@@ -56,51 +127,92 @@ namespace MineModMapSelector
             if (sender is MenuFlyoutItem menuItem)
             {
                 string selectedVersion = menuItem.Text;
-                SourcePathTextBox.Text = Path.Combine(SourcePath, selectedVersion);
+                string newSourcePath = Path.Combine(SourcePath, selectedVersion);
+
+                if (Directory.Exists(newSourcePath))
+                {
+                    SourcePath = newSourcePath;
+                    SourcePathTextBox.Text = SourcePath;
+
+                    // Zielpfad-Inhalte entfernen und nur Quellpfad anzeigen
+                    UpdateJarList();
+                }
+                else
+                {
+                    ShowMessage($"Der Ordner für die Version \"{selectedVersion}\" existiert nicht.");
+                }
             }
         }
 
-        private async void ChangeSourcePath(object sender, RoutedEventArgs e)
+
+
+
+        private void ChangeSourcePath(object sender, RoutedEventArgs e)
         {
-            var folderPicker = new FolderPicker();
-            folderPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            folderPicker.FileTypeFilter.Add("*");
-
-            var hwnd = WindowNative.GetWindowHandle(App.MainWindow);
-            InitializeWithWindow.Initialize(folderPicker, hwnd);
-
-            var folder = await folderPicker.PickSingleFolderAsync();
-            if (folder != null)
+            // Überprüfen, ob das Startverzeichnis existiert
+            if (!Directory.Exists(SourcePath))
             {
-                SourcePath = folder.Path;
-                UpdatePaths();
-                LoadVersions();
+                ShowMessage("Das Startverzeichnis existiert nicht. Der Dialog startet im Standardverzeichnis.");
+                SourcePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments); // Fallback-Verzeichnis
+            }
+
+            using (var dialog = new CommonOpenFileDialog
+                   {
+                       IsFolderPicker = true, // Aktiviert den Ordnerauswahlmodus
+                       InitialDirectory = SourcePath // Setzt das Startverzeichnis
+                   })
+            {
+                // Zeige den Dialog an
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    // Wenn der Benutzer einen Ordner auswählt, aktualisiere den Pfad
+                    SourcePath = dialog.FileName;
+                    SourcePathTextBox.Text = SourcePath;
+                    LoadVersions();
+                    ShowMessage("Quellpfad erfolgreich aktualisiert.");
+                }
+                else
+                {
+                    ShowMessage("Auswahl abgebrochen. Der Quellpfad wurde nicht geändert.");
+                }
             }
         }
 
-        private async void ChangeTargetPath(object sender, RoutedEventArgs e)
+        private void ChangeTargetPath(object sender, RoutedEventArgs e)
         {
-            var folderPicker = new FolderPicker();
-            folderPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            folderPicker.FileTypeFilter.Add("*");
-
-            var hwnd = WindowNative.GetWindowHandle(App.MainWindow);
-            InitializeWithWindow.Initialize(folderPicker, hwnd);
-
-            var folder = await folderPicker.PickSingleFolderAsync();
-            if (folder != null)
+            // Überprüfen, ob das Startverzeichnis existiert
+            if (!Directory.Exists(TargetPath))
             {
-                TargetPath = folder.Path;
-                UpdatePaths();
+                ShowMessage("Das Startverzeichnis existiert nicht. Der Dialog startet im Standardverzeichnis.");
+                TargetPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop); // Fallback-Verzeichnis
+            }
+
+            using (var dialog = new CommonOpenFileDialog
+                   {
+                       IsFolderPicker = true,
+                       InitialDirectory = TargetPath // Startverzeichnis setzen
+                   })
+            {
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    TargetPath = dialog.FileName;
+                    TargetPathTextBox.Text = TargetPath;
+                    ShowMessage("Zielpfad erfolgreich aktualisiert.");
+                }
+                else
+                {
+                    ShowMessage("Auswahl abgebrochen. Der Zielpfad wurde nicht geändert.");
+                }
             }
         }
+
 
         private void ApplyMods(object sender, RoutedEventArgs e)
         {
             var selectedVersion = SourcePathTextBox.Text;
             if (string.IsNullOrEmpty(selectedVersion))
             {
-                ShowMessage("Bitte w�hle eine Version aus.");
+                ShowMessage("Bitte wähle eine Version aus.");
                 return;
             }
 
@@ -120,6 +232,7 @@ namespace MineModMapSelector
                 }
 
                 ShowMessage("Mods wurden erfolgreich angewendet.");
+                UpdateJarList(); // Aktualisieren Sie die Liste der .jar-Dateien
             }
             catch (Exception ex)
             {
