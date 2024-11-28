@@ -45,6 +45,12 @@
                     </MenuFlyout>
                 </DropDownButton.Flyout>
             </DropDownButton>
+            <TextBlock x:Name="SelectedMapTextBlock" 
+                       Text="Keine Map ausgewählt" 
+                       FontSize="16" 
+                       FontWeight="SemiBold" 
+                       Margin="0,10,0,0" 
+                       HorizontalAlignment="Center"/>
         </StackPanel>
 
         <!-- Serverpfad und Buttons -->
@@ -88,10 +94,32 @@
                      IsReadOnly="False"  
                      TextWrapping="Wrap" 
                      AcceptsReturn="True" 
-                     Background="DarkGray" 
                      Foreground="Black" 
                      FontSize="12" 
-                     Padding="10" />
+                     Padding="10">
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal">
+                            <Storyboard>
+                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ServerOutputTextBox" Storyboard.TargetProperty="Background">
+                                    <DiscreteObjectKeyFrame KeyTime="0">
+                                        <DiscreteObjectKeyFrame.Value>
+                                            <SolidColorBrush Color="Black" Opacity="0.5"/>
+                                        </DiscreteObjectKeyFrame.Value>
+                                    </DiscreteObjectKeyFrame>
+                                </ObjectAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </VisualState>
+                        <VisualState x:Name="PointerOver">
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetName="ServerOutputTextBox" Storyboard.TargetProperty="(TextBox.Background).(SolidColorBrush.Color)" To="Black" Duration="0:0:0.5" />
+                                <DoubleAnimation Storyboard.TargetName="ServerOutputTextBox" Storyboard.TargetProperty="(TextBox.Background).(SolidColorBrush.Opacity)" To="1.0" Duration="0:0:0.5" />
+                            </Storyboard>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+            </TextBox>
         </ScrollViewer>
     </Grid>
+
 </Page>
